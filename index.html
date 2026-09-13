@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผจญภัยดินแดนตัวเลขพ่อมด - Cinematic Math Adventure</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: 'Sukhumvit Set', 'K2D', 'Sarabun', sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #05030a;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 56.25vw;
+            max-height: 100vh;
+            max-width: 177.78vh;
+            overflow: hidden;
+            border: 4px solid #f39c12;
+            box-shadow: 0 0 35px rgba(243, 156, 18, 0.5);
+            background: #000;
+        }
+
+        /* --- GLOBAL ANIMATED ELEMENTS --- */
+        #global-effects-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .floating-witch {
+            position: absolute;
+            top: 12%;
+            right: 8%;
+            font-size: 55px;
+            filter: drop-shadow(0 0 15px rgba(241, 196, 15, 0.8));
+            animation: witchHover 4s infinite ease-in-out;
+        }
+
+        @keyframes witchHover {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-18px) rotate(-4deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+
+        .fireball {
+            position: absolute;
+            font-size: 28px;
+            pointer-events: none;
+            filter: drop-shadow(0 0 12px #e74c3c);
+            animation: fireballFly 2.2s linear forwards;
+        }
+
+        @keyframes fireballFly {
+            0% { opacity: 1; transform: scale(0.6) rotate(0deg); }
+            100% { opacity: 0; transform: translate(-600px, 350px) scale(1.4) rotate(-360deg); }
+        }
+
+        .boss-fireball-storm {
+            position: absolute;
+            font-size: 45px;
+            pointer-events: none;
+            filter: drop-shadow(0 0 20px #e74c3c) drop-shadow(0 0 30px #f39c12);
+            animation: bossFireballStorm 1.8s ease-out forwards;
+        }
+
+        @keyframes bossFireballStorm {
+            0% { opacity: 0; transform: scale(0.2) translate(0, 0) rotate(0deg); }
+            30% { opacity: 1; }
+            100% { opacity: 0; transform: scale(2.5) translate(var(--tx), var(--ty)) rotate(720deg); }
+        }
+
+        .firefly {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #f1c40f;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #f39c12, 0 0 20px #f1c40f;
+            opacity: 0.8;
+            animation: floatFirefly 6s infinite ease-in-out;
+        }
+
+        @keyframes floatFirefly {
+            0% { transform: translate(0, 0) scale(0.8); opacity: 0.3; }
+            50% { transform: translate(25px, -35px) scale(1.3); opacity: 1; }
+            100% { transform: translate(-20px, 20px) scale(0.8); opacity: 0.3; }
+        }
+
+        .page-screen {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            z-index: 10;
+        }
+
+        .page-screen.active { display: flex; }
+
+        /* PAGE 1: INTRO */
+        #page-intro {
+            background-image: url('./g2.jpeg');
+            animation: castleZoom 12s infinite alternate ease-in-out;
+        }
+
+        @keyframes castleZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.15); }
+        }
+
+        /* PAGE 2: CHARACTERS */
+        #page-char {
+            background-image: url('./g3.jpeg');
+            animation: charZoomOut 1s ease-out forwards;
+        }
+
+        @keyframes charZoomOut {
+            0% { transform: scale(1.25); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .overlay-dark {
+            position: absolute;
+            inset: 0;
+            background: rgba(10, 15, 30, 0.75);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .game-title {
+            font-size: 42px;
+            color: #f1c40f;
+            text-shadow: 0 0 20px #f39c12, 3px 3px 6px #000;
+            margin-bottom: 15px;
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, #e67e22, #e74c3c);
+            border: 2px solid #fff;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 12px 38px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(230, 126, 34, 0.8);
+            transition: transform 0.2s, background 0.3s;
+            text-shadow: 1px 1px 3px #000;
+        }
+
+        .btn-main:hover {
+            transform: scale(1.06);
+            background: linear-gradient(135deg, #f39c12, #ee5253);
+        }
+
+        /* PAGE 3: MAP SCREEN */
+        #page-map {
+            background-image: url('./g1.jpeg');
+            transition: transform 0.75s cubic-bezier(0.25, 1, 0.5, 1);
+            transform-origin: center center;
+        }
+
+        .map-viewport-wrapper {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #map-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .base-node {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #34495e, #1a252f);
+            border: 3px solid #7f8c8d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            z-index: 5;
+            transition: transform 0.2s, box-shadow 0.2s;
+            transform: translate(-50%, -50%);
+        }
+
+        .base-node.unlocked {
+            background: radial-gradient(circle, #f39c12, #d35400);
+            border-color: #fff;
+            box-shadow: 0 0 20px #f1c40f;
+            cursor: pointer;
+        }
+
+        .base-node.unlocked:hover { transform: translate(-50%, -50%) scale(1.18); }
+
+        .base-node.completed-correct {
+            background: radial-gradient(circle, #2ecc71, #27ae60);
+            border-color: #fff;
+            box-shadow: 0 0 15px #2ecc71;
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .base-node.completed-wrong {
+            background: radial-gradient(circle, #e74c3c, #c0392b);
+            border-color: #fff;
+            box-shadow: 0 0 15px #e74c3c;
+            cursor: not-allowed;
+            opacity: 0.9;
+        }
+
+        .base-node.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+
+        #player-avatar {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            font-size: 40px;
+            z-index: 10;
+            transform: translate(-50%, -80%);
+            transition: left 0.7s ease-in-out, top 0.7s ease-in-out;
+            pointer-events: none;
+            filter: drop-shadow(0 5px 5px rgba(0,0,0,0.8));
+        }
+
+        /* PAGE 4: BATTLE GAME PAGE */
+        #page-battle {
+            background-color: #0d1b2a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .battle-bg-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./g1.jpeg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            animation: bgSubtleZoom 10s infinite alternate ease-in-out;
+            z-index: 1;
+        }
+
+        .battle-bg-boss {
+            background-image: url('./g2.jpeg') !important;
+        }
+
+        @keyframes bgSubtleZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.12); }
+        }
+
+        .shake-ui {
+            animation: wrongShakeUI 0.4s ease-in-out !important;
+        }
+
+        @keyframes wrongShakeUI {
+            0% { transform: translateX(-50%) translate(0, 0); }
+            20% { transform: translateX(-50%) translate(-15px, 10px); }
+            40% { transform: translateX(-50%) translate(15px, -10px); }
+            60% { transform: translateX(-50%) translate(-10px, -5px); }
+            80% { transform: translateX(-50%) translate(10px, 5px); }
+            100% { transform: translateX(-50%) translate(0, 0); }
+        }
+
+        .battle-ui {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85%;
+            background: rgba(10, 15, 30, 0.92);
+            border: 3px solid #f39c12;
+            border-radius: 20px;
+            padding: 20px;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 35px rgba(0,0,0,0.9);
+        }
+
+        .question-graphic-box {
+            font-size: 38px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px 25px;
+            border-radius: 15px;
+            border: 1px dashed #f1c40f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .question-box {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #f1c40f;
+            text-align: center;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        .choices-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .btn-choice {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            border: 2px solid #5dade2;
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            box-shadow: 0 4px 0 #1b2631;
+        }
+
+        .btn-choice:hover {
+            background: linear-gradient(135deg, #1abc9c, #2ecc71);
+            transform: translateY(-2px);
+        }
+
+        /* 🧙‍♀️ BOSS CUTSCENE OVERLAY FOR STAGE 10 */
+        #boss-cutscene-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(5, 3, 15, 0.85);
+            z-index: 45;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .big-boss-witch {
+            font-size: 130px;
+            filter: drop-shadow(0 0 25px #e74c3c) drop-shadow(0 0 45px #f39c12);
+            animation: bossFloat 2.5s infinite ease-in-out;
+            margin-bottom: 10px;
+        }
+
+        @keyframes bossFloat {
+            0% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-25px) scale(1.08); }
+            100% { transform: translateY(0px) scale(1); }
+        }
+
+        .boss-dialogue {
+            font-size: 42px;
+            font-weight: bold;
+            color: #ff4757;
+            text-shadow: 0 0 20px #ff6b81, 2px 2px 8px #000;
+            margin-bottom: 25px;
+            animation: pulseText 1.5s infinite alternate;
+        }
+
+        @keyframes pulseText {
+            0% { transform: scale(0.95); opacity: 0.9; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+
+        /* PAGE 5: RESULT SUMMARY PAGE */
+        #page-result {
+            background-image: url('./g2.jpeg');
+        }
+
+        .result-card {
+            background: rgba(10, 15, 30, 0.9);
+            border: 3px solid #f39c12;
+            border-radius: 25px;
+            padding: 30px 50px;
+            text-align: center;
+            max-width: 650px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.9);
+        }
+
+        #fireworks-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .top-nav {
+            position: absolute;
+            top: 15px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 40;
+        }
+
+        .info-badge {
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #f39c12;
+            padding: 6px 20px;
+            border-radius: 30px;
+            font-size: 18px;
+            color: #f1c40f;
+            font-weight: bold;
+        }
+
+        .btn-sound {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #f39c12;
+            color: #fff;
+            font-size: 22px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: transform 0.2s, background 0.2s;
+            margin-left: 10px;
+        }
+
+        .btn-sound:hover {
+            transform: scale(1.1);
+            background: rgba(243, 156, 18, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+
+    <!-- GLOBAL ANIMATION LAYER -->
+    <div id="global-effects-layer">
+        <div class="floating-witch" id="scene-witch">🧙‍♀️</div>
+        <div id="fireflies-box"></div>
+    </div>
+
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- PAGE 1: INTRO -->
+    <div id="page-intro" class="page-screen active">
+        <div class="overlay-dark">
+            <div style="width: 100%; display: flex; justify-content: flex-end;">
+                <button class="btn-sound" id="sound-btn-intro" onclick="toggleSound()">🔊</button>
+            </div>
+            <div>
+                <h1 class="game-title">✨ ผจญภัยดินแดนตัวเลขพ่อมด ✨</h1>
+                <p style="font-size: 19px; max-width: 680px; color: #d5dbdb; margin: 0 auto 25px auto; line-height: 1.6;">
+                    ร่วมการผจญภัยในดินแดนเวทมนตร์ ปลดล็อกปริศนาตัวเลขทั้ง 10 ฐาน เพื่อพิชิตจอมมารมังกร! (โจทย์สุ่มใหม่ไม่ซ้ำกันทุกรอบ)
+                </p>
+                <button class="btn-main" onclick="startNewGame()">⚔️ เริ่มต้นการผจญภัย</button>
+            </div>
+            <div></div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: CHARACTERS -->
+    <div id="page-char" class="page-screen">
+        <div class="overlay-dark">
+            <div style="width: 100%; display: flex; justify-content: flex-end;">
+                <button class="btn-sound" id="sound-btn-char" onclick="toggleSound()">🔊</button>
+            </div>
+            <h2 class="game-title" style="font-size: 36px;">🧙‍♂️ เหล่าผู้พิทักษ์แห่งดินแดนเวทมนตร์ 🐉</h2>
+            <div style="background: rgba(0,0,0,0.78); border: 2px solid #f39c12; border-radius: 20px; padding: 20px 35px; max-width: 680px; font-size: 19px; line-height: 1.6;">
+                พร้อมแล้วหรือยัง? ร่วมเดินทางไปกับพ่อมด แม่มด ปีศาจ และมังกรฟ้า เพื่อผ่านด่านคณิตศาสตร์ทั้ง 10 ฐาน! (โจทย์จะเปลี่ยนไปเรื่อยๆ ทุกครั้งที่เริ่มเล่นใหม่)
+            </div>
+            <button class="btn-main" onclick="goToPage('page-map')">🗺️ ไปที่แผนที่เส้นทาง</button>
+        </div>
+    </div>
+
+    <!-- PAGE 3: MAP PATH SCREEN -->
+    <div id="page-map" class="page-screen">
+        <div class="map-viewport-wrapper">
+            <svg id="map-svg"></svg>
+            <div id="nodes-container"></div>
+            <div id="player-avatar">🧙‍♂️</div>
+        </div>
+        <div class="top-nav">
+            <div class="info-badge" id="score-tracker">คะแนน: 0 / 10</div>
+            <div style="display: flex; align-items: center;">
+                <button class="btn-main" style="font-size: 16px; padding: 5px 20px;" onclick="goToPage('page-intro')">🏠 หน้าแรก</button>
+                <button class="btn-sound" id="sound-btn-map" onclick="toggleSound()">🔊</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: BATTLE STAGE -->
+    <div id="page-battle" class="page-screen">
+        <div class="battle-bg-layer" id="battle-bg"></div>
+        
+        <div class="top-nav">
+            <div class="info-badge" id="battle-stage-title">ฐานที่ 1</div>
+            <div style="display: flex; align-items: center;">
+                <button class="btn-main" style="font-size: 16px; padding: 5px 20px;" onclick="returnToMap()">🗺️ ย้อนกลับแผนที่</button>
+                <button class="btn-sound" id="sound-btn-battle" onclick="toggleSound()">🔊</button>
+            </div>
+        </div>
+
+        <!-- BOSS STAGE 10 CUTSCENE -->
+        <div id="boss-cutscene-overlay">
+            <div class="big-boss-witch">🧙‍♀️🔥</div>
+            <div class="boss-dialogue">"เจ้ามาถึงด่านสุดท้ายแล้ว!"</div>
+            <button class="btn-main" style="font-size: 26px; padding: 15px 45px;" onclick="triggerBossFireballStorm()">🔥 เผชิญหน้าบอส!</button>
+        </div>
+
+        <div class="battle-ui" id="battle-panel">
+            <div class="question-graphic-box" id="q-graphic">🎁🎁🎁</div>
+            <div class="question-box" id="q-title">โจทย์คณิตศาสตร์</div>
+            <div class="choices-grid" id="q-choices"></div>
+        </div>
+    </div>
+
+    <!-- PAGE 5: RESULT SUMMARY PAGE -->
+    <div id="page-result" class="page-screen">
+        <div class="overlay-dark">
+            <div style="width: 100%; display: flex; justify-content: flex-end;">
+                <button class="btn-sound" id="sound-btn-result" onclick="toggleSound()">🔊</button>
+            </div>
+            <div class="result-card">
+                <h2 class="game-title" id="result-title">🎉 สรุปผลการผจญภัย 🎉</h2>
+                <div id="result-score" style="font-size: 32px; font-weight: bold; color: #2ecc71; margin: 15px 0;">
+                    คุณทำได้ 8 / 10 คะแนน
+                </div>
+                <p id="result-msg" style="font-size: 20px; color: #ecf0f1; margin-bottom: 25px; line-height: 1.5;">
+                    ยอดเยี่ยมมาก! คุณผ่านภารกิจผู้พิทักษ์ตัวเลขเรียบร้อยแล้ว
+                </p>
+                <button class="btn-main" id="btn-retry" onclick="startNewGame()">🔄 เริ่มเกมใหม่รอบใหม่ (สุ่มโจทย์ใหม่)</button>
+            </div>
+            <div></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const mapCoordinates = [
+        { x: 15, y: 78, name: "ฐาน 1: ปราสาทลอยฟ้า" },
+        { x: 30, y: 68, name: "ฐาน 2: ป่าต้องมนตร์" },
+        { x: 25, y: 45, name: "ฐาน 3: หมู่บ้านแม่มด" },
+        { x: 40, y: 32, name: "ฐาน 4: สะพานสายหมอก" },
+        { x: 55, y: 45, name: "ฐาน 5: ห้องทดลอง" },
+        { x: 48, y: 72, name: "ฐาน 6: ถ้ำมังกร" },
+        { x: 68, y: 78, name: "ฐาน 7: ภูเขาไฟคำสาป" },
+        { x: 78, y: 55, name: "ฐาน 8: ดินแดนน้ำแข็ง" },
+        { x: 72, y: 32, name: "ฐาน 9: หุบเขาพระจันทร์" },
+        { x: 85, y: 22, name: "ฐาน 10: บัลลังก์บอส" }
+    ];
+
+    // ==========================================
+    // 📚 คลังโจทย์ 100 ชุด (90 ข้อทั่วไป + 10 ข้อบอส)
+    // ==========================================
+    const MASTER_QUESTION_BANK = [
+        // 🔹 90 โจทย์ทั่วไป (ด่าน 1-9)
+        { graphic: "📦📦📦 🍎🍎", q: "(10 + 10 + 10) + 2 = ?", choices: ["32", "23", "30", "35"], ans: "32" },
+        { graphic: "📜 45  [ ? ]  54 📜", q: "จงเปรียบเทียบจำนวน", choices: ["<", ">", "="], ans: "<" },
+        { graphic: "🔮 12 , 14 , 16 , [ ? ] , 20 🔮", q: "แบบรูปแบบเพิ่มขึ้นทีละ 2", choices: ["18", "17", "19", "22"], ans: "18" },
+        { graphic: "🌉 24 + 13 🌉", q: "ผลบวกเท่ากับเท่าใด?", choices: ["37", "35", "47", "36"], ans: "37" },
+        { graphic: "🧪 52 - 17 🧪", q: "ผลลบเท่ากับเท่าใด?", choices: ["35", "45", "34", "25"], ans: "35" },
+        { graphic: "⭐️⭐️⭐️  ⭐️⭐️⭐️  ⭐️⭐️⭐️", q: "เขียนในรูปการคูณได้อย่างไร?", choices: ["3 × 3 = 9", "3 + 3 = 6", "3 × 2 = 6", "9 × 1 = 9"], ans: "3 × 3 = 9" },
+        { graphic: "🔷 🔶 🔹 🔺 🔹", q: "รูปที่มี 5 ด้าน 5 มุม เรียกว่าอะไร?", choices: ["รูปห้าเหลี่ยม", "รูปสี่เหลี่ยม", "รูปสามเหลี่ยม", "วงกลม"], ans: "รูปห้าเหลี่ยม" },
+        { graphic: "⏰ 🕒 🕣 🕚", q: "เข็มสั้นชี้เลข 8 เข็มยาวชี้เลข 12 คือเวลากี่นาฬิกา?", choices: ["8 นาฬิกา", "12 นาฬิกา", "6 นาฬิกา", "10 นาฬิกา"], ans: "8 นาฬิกา" },
+        { graphic: "🍎🍎🍎 + 🍏🍏🍏", q: "3 + 3 เท่ากับเท่าใด?", choices: ["6", "5", "7", "8"], ans: "6" },
+        { graphic: "💎💎💎💎 - 💎💎", q: "4 - 2 เท่ากับเท่าใด?", choices: ["2", "1", "3", "4"], ans: "2" },
+        { graphic: "🎲 10 + 25 🎲", q: "ผลบวกเท่ากับเท่าใด?", choices: ["35", "30", "40", "25"], ans: "35" },
+        { graphic: "⚡️ 100 - 40 ⚡️", q: "ผลลบเท่ากับเท่าใด?", choices: ["60", "50", "70", "40"], ans: "60" },
+        { graphic: "🍬 15 + 15 🍬", q: "ผลบวกเท่ากับเท่าใด?", choices: ["30", "25", "35", "40"], ans: "30" },
+        { graphic: "🎈 80 - 25 🎈", q: "ผลลบเท่ากับเท่าใด?", choices: ["55", "65", "45", "50"], ans: "55" },
+        { graphic: "🐱🐱 + 🐱🐱🐱", q: "2 + 3 เท่ากับเท่าใด?", choices: ["5", "4", "6", "7"], ans: "5" },
+        { graphic: "🌙 50  [ ? ]  30 🌙", q: "จงเปรียบเทียบจำนวน", choices: [">", "<", "="], ans: ">" },
+        { graphic: "🔮 5 , 10 , 15 , [ ? ] , 25 🔮", q: "แบบรูปแบบเพิ่มขึ้นทีละ 5", choices: ["20", "18", "22", "30"], ans: "20" },
+        { graphic: "🔮 100 , 90 , 80 , [ ? ] , 60 🔮", q: "แบบรูปแบบลดลงทีละ 10", choices: ["70", "75", "65", "50"], ans: "70" },
+        { graphic: "📐 📐 📐 📐", q: "รูปที่มี 3 ด้าน 3 มุม เรียกว่าอะไร?", choices: ["รูปสามเหลี่ยม", "รูปสี่เหลี่ยม", "รูปห้าเหลี่ยม", "วงกลม"], ans: "รูปสามเหลี่ยม" },
+        { graphic: "⚪️ ⚪️ ⚪️", q: "รูปที่ไม่มีด้าน ไม่มีมุม เรียกว่าอะไร?", choices: ["วงกลม", "รูปสามเหลี่ยม", "รูปสี่เหลี่ยม", "รูปแปดเหลี่ยม"], ans: "วงกลม" },
+        { graphic: "⏰ 🕒", q: "เข็มสั้นชี้เลข 3 เข็มยาวชี้เลข 12 คือเวลากี่นาฬิกา?", choices: ["3 นาฬิกา", "12 นาฬิกา", "9 นาฬิกา", "6 นาฬิกา"], ans: "3 นาฬิกา" },
+        { graphic: "⏰ 🕕", q: "เข็มสั้นชี้เลข 6 เข็มยาวชี้เลข 12 คือเวลากี่นาฬิกา?", choices: ["6 นาฬิกา", "12 นาฬิกา", "3 นาฬิกา", "1 นาฬิกา"], ans: "6 นาฬิกา" },
+        { graphic: "🎁 4 × 2 🎁", q: "ผลคูณเท่ากับเท่าใด?", choices: ["8", "6", "10", "12"], ans: "8" },
+        { graphic: "⭐️ 5 × 3 ⭐️", q: "ผลคูณเท่ากับเท่าใด?", choices: ["15", "10", "20", "25"], ans: "15" },
+        { graphic: "🍕 12 ÷ 2 🍕", q: "ผลหารเท่ากับเท่าใด?", choices: ["6", "4", "8", "5"], ans: "6" },
+        { graphic: "🧁 20 ÷ 4 🧁", q: "ผลหารเท่ากับเท่าใด?", choices: ["5", "4", "6", "10"], ans: "5" },
+        { graphic: "📜 99  [ ? ]  99 📜", q: "จงเปรียบเทียบจำนวน", choices: ["=", ">", "<"], ans: "=" },
+        { graphic: "📦 (20 + 30) - 10", q: "ผลลัพธ์เท่ากับเท่าใด?", choices: ["40", "50", "30", "60"], ans: "40" },
+        { graphic: "📦 (50 - 20) + 15", q: "ผลลัพธ์เท่ากับเท่าใด?", choices: ["45", "35", "55", "40"], ans: "45" },
+        { graphic: "🔥 33 + 44 🔥", q: "ผลบวกเท่ากับเท่าใด?", choices: ["77", "66", "88", "74"], ans: "77" },
+        { graphic: "🧊 90 - 45 🧊", q: "ผลลบเท่ากับเท่าใด?", choices: ["45", "50", "40", "35"], ans: "45" },
+        { graphic: "🔮 2 , 4 , 6 , 8 , [ ? ] 🔮", q: "จำนวนถัดไปคืออะไร?", choices: ["10", "9", "11", "12"], ans: "10" },
+        { graphic: "🔮 30 , 27 , 24 , [ ? ] 🔮", q: "แบบรูปแบบลดลงทีละ 3", choices: ["21", "22", "20", "18"], ans: "21" },
+        { graphic: "🍄 18 + 12 🍄", q: "ผลบวกเท่ากับเท่าใด?", choices: ["30", "28", "32", "40"], ans: "30" },
+        { graphic: "💎 75 - 25 💎", q: "ผลลบเท่ากับเท่าใด?", choices: ["50", "45", "55", "60"], ans: "50" },
+        { graphic: "⚡️ 6 × 2 ⚡️", q: "ผลคูณเท่ากับเท่าใด?", choices: ["12", "14", "10", "16"], ans: "12" },
+        { graphic: "⚡️ 7 × 3 ⚡️", q: "ผลคูณเท่ากับเท่าใด?", choices: ["21", "24", "18", "27"], ans: "21" },
+        { graphic: "🍒 16 ÷ 4 🍒", q: "ผลหารเท่ากับเท่าใด?", choices: ["4", "3", "5", "8"], ans: "4" },
+        { graphic: "🍊 25 ÷ 5 🍊", q: "ผลหารเท่ากับเท่าใด?", choices: ["5", "6", "4", "7"], ans: "5" },
+        { graphic: "📜 81  [ ? ]  18 📜", q: "จงเปรียบเทียบจำนวน", choices: [">", "<", "="], ans: ">" },
+        { graphic: "📜 13  [ ? ]  31 📜", q: "จงเปรียบเทียบจำนวน", choices: ["<", ">", "="], ans: "<" },
+        { graphic: "🔷 🔶 🟥 🟨", q: "รูปที่มี 4 ด้าน 4 มุม เรียกว่าอะไร?", choices: ["รูปสี่เหลี่ยม", "รูปสามเหลี่ยม", "รูปห้าเหลี่ยม", "วงกลม"], ans: "รูปสี่เหลี่ยม" },
+        { graphic: "🛑 🛑 🛑", q: "รูปที่มี 6 ด้าน 6 มุม เรียกว่าอะไร?", choices: ["รูปหกเหลี่ยม", "รูปแปดเหลี่ยม", "รูปสี่เหลี่ยม", "รูปห้าเหลี่ยม"], ans: "รูปหกเหลี่ยม" },
+        { graphic: "⏰ 🕤", q: "เข็มสั้นชี้เลข 9 เข็มยาวชี้เลข 12 คือเวลากี่นาฬิกา?", choices: ["9 นาฬิกา", "12 นาฬิกา", "6 นาฬิกา", "3 นาฬิกา"], ans: "9 นาฬิกา" },
+        { graphic: "⏰ 🕛", q: "เข็มสั้นและเข็มยาวชี้เลข 12 คือเวลากี่นาฬิกา?", choices: ["12 นาฬิกา", "6 นาฬิกา", "1 นาฬิกา", "24 นาฬิกา"], ans: "12 นาฬิกา" },
+        { graphic: "🌟 14 + 16 🌟", q: "ผลบวกเท่ากับเท่าใด?", choices: ["30", "20", "32", "34"], ans: "30" },
+        { graphic: "🌟 48 - 18 🌟", q: "ผลลบเท่ากับเท่าใด?", choices: ["30", "28", "38", "20"], ans: "30" },
+        { graphic: "📦 10 + 20 + 30", q: "ผลบวกเท่ากับเท่าใด?", choices: ["60", "50", "70", "40"], ans: "60" },
+        { graphic: "📦 100 - 30 - 20", q: "ผลลัพธ์เท่ากับเท่าใด?", choices: ["50", "60", "40", "30"], ans: "50" },
+        { graphic: "🔮 10 , 20 , 30 , [ ? ] 🔮", q: "จำนวนถัดไปคืออะไร?", choices: ["40", "35", "50", "45"], ans: "40" },
+        { graphic: "🔮 50 , 45 , 40 , [ ? ] 🔮", q: "แบบรูปแบบลดลงทีละ 5", choices: ["35", "30", "38", "40"], ans: "35" },
+        { graphic: "🍏🍏 + 🍏🍏🍏🍏", q: "2 + 4 เท่ากับเท่าใด?", choices: ["6", "5", "7", "8"], ans: "6" },
+        { graphic: "🦋 15 - 9 🦋", q: "ผลลบเท่ากับเท่าใด?", choices: ["6", "5", "7", "8"], ans: "6" },
+        { graphic: "⚡️ 8 × 2 ⚡️", q: "ผลคูณเท่ากับเท่าใด?", choices: ["16", "14", "18", "12"], ans: "16" },
+        { graphic: "⚡️ 9 × 3 ⚡️", q: "ผลคูณเท่ากับเท่าใด?", choices: ["27", "24", "30", "21"], ans: "27" },
+        { graphic: "🍇 30 ÷ 5 🍇", q: "ผลหารเท่ากับเท่าใด?", choices: ["6", "5", "7", "4"], ans: "6" },
+        { graphic: "🍓 18 ÷ 3 🍓", q: "ผลหารเท่ากับเท่าใด?", choices: ["6", "5", "8", "9"], ans: "6" },
+        { graphic: "📜 67  [ ? ]  76 📜", q: "จงเปรียบเทียบจำนวน", choices: ["<", ">", "="], ans: "<" },
+        { graphic: "📜 88  [ ? ]  80 📜", q: "จงเปรียบเทียบจำนวน", choices: [">", "<", "="], ans: ">" },
+        { graphic: "🎒 21 + 19 🎒", q: "ผลบวกเท่ากับเท่าใด?", choices: ["40", "30", "42", "38"], ans: "40" },
+        { graphic: "🎒 65 - 35 🎒", q: "ผลลบเท่ากับเท่าใด?", choices: ["30", "25", "35", "40"], ans: "30" },
+        { graphic: "🔮 1 , 3 , 5 , 7 , [ ? ] 🔮", q: "แบบรูปแบบเลขคี่ ถัดไปคือ?", choices: ["9", "8", "10", "11"], ans: "9" },
+        { graphic: "🔮 4 , 8 , 12 , [ ? ] 🔮", q: "แบบรูปแบบเพิ่มขึ้นทีละ 4", choices: ["16", "14", "15", "18"], ans: "16" },
+        { graphic: "🎨 10 × 5 🎨", q: "ผลคูณเท่ากับเท่าใด?", choices: ["50", "40", "60", "55"], ans: "50" },
+        { graphic: "🎨 7 × 4 🎨", q: "ผลคูณเท่ากับเท่าใด?", choices: ["28", "24", "32", "26"], ans: "28" },
+        { graphic: "🥞 40 ÷ 10 🥞", q: "ผลหารเท่ากับเท่าใด?", choices: ["4", "5", "3", "10"], ans: "4" },
+        { graphic: "🥞 21 ÷ 7 🥞", q: "ผลหารเท่ากับเท่าใด?", choices: ["3", "4", "2", "5"], ans: "3" },
+        { graphic: "⏰ 🕐", q: "เข็มสั้นชี้เลข 1 เข็มยาวชี้เลข 12 คือเวลากี่นาฬิกา?", choices: ["1 นาฬิกา", "12 นาฬิกา", "2 นาฬิกา", "11 นาฬิกา"], ans: "1 นาฬิกา" },
+        { graphic: "⏰ 🕔", q: "เข็มสั้นชี้เลข 5 เข็มยาวชี้เลข 12 คือเวลากี่นาฬิกา?", choices: ["5 นาฬิกา", "12 นาฬิกา", "4 นาฬิกา", "6 นาฬิกา"], ans: "5 นาฬิกา" },
+        { graphic: "🔥 55 + 25 🔥", q: "ผลบวกเท่ากับเท่าใด?", choices: ["80", "70", "85", "75"], ans: "80" },
+        { graphic: "🧊 72 - 22 🧊", q: "ผลลบเท่ากับเท่าใด?", choices: ["50", "40", "52", "60"], ans: "50" },
+        { graphic: "📦 5 + 15 + 25", q: "ผลบวกเท่ากับเท่าใด?", choices: ["45", "35", "40", "50"], ans: "45" },
+        { graphic: "📦 80 - 40 - 10", q: "ผลลัพธ์เท่ากับเท่าใด?", choices: ["30", "40", "20", "50"], ans: "30" },
+        { graphic: "🔮 100 , 80 , 60 , [ ? ] 🔮", q: "แบบรูปแบบลดลงทีละ 20", choices: ["40", "50", "30", "20"], ans: "40" },
+        { graphic: "🔮 0 , 10 , 20 , [ ? ] 🔮", q: "จำนวนถัดไปคืออะไร?", choices: ["30", "25", "35", "40"], ans: "30" },
+        { graphic: "⚡️ 8 × 4 ⚡️", q: "ผลคูณเท่ากับเท่าใด?", choices: ["32", "28", "36", "30"], ans: "32" },
+        { graphic: "⚡️ 6 × 5 ⚡️", q: "ผลคูณเท่ากับเท่าใด?", choices: ["30", "25", "35", "40"], ans: "30" },
+        { graphic: "🍉 36 ÷ 6 🍉", q: "ผลหารเท่ากับเท่าใด?", choices: ["6", "7", "5", "8"], ans: "6" },
+        { graphic: "🍈 28 ÷ 4 🍈", q: "ผลหารเท่ากับเท่าใด?", choices: ["7", "6", "8", "9"], ans: "7" },
+        { graphic: "📜 105  [ ? ]  95 📜", q: "จงเปรียบเทียบจำนวน", choices: [">", "<", "="], ans: ">" },
+        { graphic: "📜 49  [ ? ]  50 📜", q: "จงเปรียบเทียบจำนวน", choices: ["<", ">", "="], ans: "<" },
+        { graphic: "🎈 34 + 26 🎈", q: "ผลบวกเท่ากับเท่าใด?", choices: ["60", "50", "64", "56"], ans: "60" },
+        { graphic: "🎈 95 - 45 🎈", q: "ผลลบเท่ากับเท่าใด?", choices: ["50", "40", "55", "60"], ans: "50" },
+        { graphic: "🔮 15 , 30 , 45 , [ ? ] 🔮", q: "แบบรูปแบบเพิ่มขึ้นทีละ 15", choices: ["60", "50", "55", "65"], ans: "60" },
+        { graphic: "🔮 90 , 75 , 60 , [ ? ] 🔮", q: "แบบรูปแบบลดลงทีละ 15", choices: ["45", "50", "40", "35"], ans: "45" },
+        { graphic: "🎨 9 × 4 🎨", q: "ผลคูณเท่ากับเท่าใด?", choices: ["36", "32", "40", "34"], ans: "36" },
+        { graphic: "🎨 8 × 5 🎨", q: "ผลคูณเท่ากับเท่าใด?", choices: ["40", "35", "45", "30"], ans: "40" },
+        { graphic: "🍊 45 ÷ 5 🍊", q: "ผลหารเท่ากับเท่าใด?", choices: ["9", "8", "7", "10"], ans: "9" },
+        { graphic: "🍓 32 ÷ 8 🍓", q: "ผลหารเท่ากับเท่าใด?", choices: ["4", "5", "3", "6"], ans: "4" },
+        { graphic: "📦 12 + 18 + 20", q: "ผลบวกเท่ากับเท่าใด?", choices: ["50", "40", "48", "52"], ans: "50" }
+    ];
+
+    // 👑 10 โจทย์ระดับบอส (ด่าน 10)
+    const MASTER_BOSS_BANK = [
+        { graphic: "📏 3 เมตร 50 เซนติเมตร 📏", q: "คิดเป็นความยาวรวมทั้งหมดกี่เซนติเมตร?", choices: ["350 เซนติเมตร", "350 เมตร", "350 กิโลเมตร", "350 มิลลิเมตร"], ans: "350 เซนติเมตร" },
+        { graphic: "🏰 สะพานหินยาว 5 เมตร 🏰", q: "สะพานแห่งนี้ยาวเท่ากับกี่เซนติเมตร?", choices: ["500 เซนติเมตร", "500 เมตร", "500 กิโลเมตร", "500 มิลลิเมตร"], ans: "500 เซนติเมตร" },
+        { graphic: "🧹 ไม้กวาดแม่มดยาว 1 เมตร 80 เซนติเมตร 🧹", q: "คิดเป็นความยาวกี่เซนติเมตร?", choices: ["180 เซนติเมตร", "180 เมตร", "180 กิโลเมตร", "180 มิลลิเมตร"], ans: "180 เซนติเมตร" },
+        { graphic: "🐉 ตัวมังกรยาว 4 เมตร 20 เซนติเมตร 🐉", q: "คิดเป็นความยาวกี่เซนติเมตร?", choices: ["420 เซนติเมตร", "420 เมตร", "400 เซนติเมตร", "240 เซนติเมตร"], ans: "420 เซนติเมตร" },
+        { graphic: "🚪 ประตูปราสาทสูง 2 เมตร 50 เซนติเมตร 🚪", q: "คิดเป็นความสูงกี่เซนติเมตร?", choices: ["250 เซนติเมตร", "200 เซนติเมตร", "250 เมตร", "500 เซนติเมตร"], ans: "250 เซนติเมตร" },
+        { graphic: "🗡️ ดาบเวทมนตร์ยาว 1 เมตร 10 เซนติเมตร 🗡️", q: "คิดเป็นความยาวกี่เซนติเมตร?", choices: ["110 เซนติเมตร", "101 เซนติเมตร", "110 เมตร", "100 เซนติเมตร"], ans: "110 เซนติเมตร" },
+        { graphic: "📜 คทาพ่อมดยาว 2 เมตร 📜", q: "คิดเป็นความยาวกี่เซนติเมตร?", choices: ["200 เซนติเมตร", "20 เมตร", "2000 เซนติเมตร", "20 มิลลิเมตร"], ans: "200 เซนติเมตร" },
+        { graphic: "🌲 ต้นไม้ต้องมนตร์สูง 6 เมตร 🌲", q: "คิดเป็นความสูงกี่เซนติเมตร?", choices: ["600 เซนติเมตร", "60 เมตร", "6000 เซนติเมตร", "60 มิลลิเมตร"], ans: "600 เซนติเมตร" },
+        { graphic: "🏹 คันธนูพฤกษายาว 1 เมตร 45 เซนติเมตร 🏹", q: "คิดเป็นความยาวกี่เซนติเมตร?", choices: ["145 เซนติเมตร", "154 เซนติเมตร", "145 เมตร", "450 เซนติเมตร"], ans: "145 เซนติเมตร" },
+        { graphic: "🛡️ โล่ศักดิ์สิทธิ์ยาว 1 เมตร 25 เซนติเมตร 🛡️", q: "คิดเป็นความยาวกี่เซนติเมตร?", choices: ["125 เซนติเมตร", "152 เซนติเมตร", "125 เมตร", "250 เซนติเมตร"], ans: "125 เซนติเมตร" }
+    ];
+
+    let usedQuestionIndices = []; 
+    let usedBossIndices = [];     
+
+    let currentBase = 1; 
+    let unlockedLevel = 1;
+    let stageResults = Array(10).fill(null); 
+    let currentQuestions = [];
+    let isMuted = false;
+
+    function initAmbientEffects() {
+        const box = document.getElementById('fireflies-box');
+        box.innerHTML = '';
+        for (let i = 0; i < 20; i++) {
+            const ff = document.createElement('div');
+            ff.className = 'firefly';
+            ff.style.left = Math.random() * 95 + '%';
+            ff.style.top = Math.random() * 95 + '%';
+            ff.style.animationDelay = (Math.random() * 5) + 's';
+            ff.style.animationDuration = (4 + Math.random() * 4) + 's';
+            box.appendChild(ff);
+        }
+
+        setInterval(() => {
+            castWitchFireball();
+        }, 3500);
+    }
+
+    function castWitchFireball() {
+        const witch = document.getElementById('scene-witch');
+        const layer = document.getElementById('global-effects-layer');
+        if (!witch || !layer) return;
+
+        const rect = witch.getBoundingClientRect();
+        const containerRect = document.getElementById('game-container').getBoundingClientRect();
+
+        const fireball = document.createElement('div');
+        fireball.className = 'fireball';
+        fireball.innerText = '🔥';
+        fireball.style.top = (rect.top - containerRect.top + 20) + 'px';
+        fireball.style.left = (rect.left - containerRect.left + 10) + 'px';
+
+        layer.appendChild(fireball);
+
+        setTimeout(() => {
+            fireball.remove();
+        }, 2200);
+    }
+
+    function toggleSound() {
+        isMuted = !isMuted;
+        const soundBtns = document.querySelectorAll('.btn-sound');
+        soundBtns.forEach(btn => {
+            btn.innerText = isMuted ? '🔇' : '🔊';
+        });
+
+        if (isMuted && audioCtx) {
+            audioCtx.suspend();
+        } else if (!isMuted && audioCtx) {
+            audioCtx.resume();
+        }
+    }
+
+    function shuffleArray(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    // 🎲 ฟังก์ชันสุ่มโจทย์แบบไม่ให้ซ้ำกับรอบที่เคยทำ
+    function generateRandomQuestions() {
+        let availableNormalIndices = [];
+        for (let i = 0; i < MASTER_QUESTION_BANK.length; i++) {
+            if (!usedQuestionIndices.includes(i)) {
+                availableNormalIndices.push(i);
+            }
+        }
+
+        // หากโจทย์สุ่มใช้จนเกือบหมดแล้ว ให้รีเซ็ตประวัติเพื่อวนกลับมาสุ่มใหม่ได้
+        if (availableNormalIndices.length < 9) {
+            usedQuestionIndices = [];
+            availableNormalIndices = MASTER_QUESTION_BANK.map((_, idx) => idx);
+        }
+
+        const pickedNormalIndices = shuffleArray(availableNormalIndices).slice(0, 9);
+        usedQuestionIndices.push(...pickedNormalIndices);
+
+        const selectedNormal = pickedNormalIndices.map(idx => {
+            const item = MASTER_QUESTION_BANK[idx];
+            return {
+                ...item,
+                choices: shuffleArray(item.choices)
+            };
+        });
+
+        let availableBossIndices = [];
+        for (let i = 0; i < MASTER_BOSS_BANK.length; i++) {
+            if (!usedBossIndices.includes(i)) {
+                availableBossIndices.push(i);
+            }
+        }
+
+        if (availableBossIndices.length < 1) {
+            usedBossIndices = [];
+            availableBossIndices = MASTER_BOSS_BANK.map((_, idx) => idx);
+        }
+
+        const pickedBossIndex = shuffleArray(availableBossIndices)[0];
+        usedBossIndices.push(pickedBossIndex);
+
+        const bossItem = MASTER_BOSS_BANK[pickedBossIndex];
+        const selectedBoss = {
+            ...bossItem,
+            choices: shuffleArray(bossItem.choices)
+        };
+
+        return [...selectedNormal, selectedBoss];
+    }
+
+    function startNewGame() {
+        currentBase = 1;
+        unlockedLevel = 1;
+        stageResults = Array(10).fill(null);
+        
+        // สุ่มโจทย์ใหม่แบบไม่ซ้ำกับรอบก่อน
+        currentQuestions = generateRandomQuestions();
+
+        const mapScreen = document.getElementById('page-map');
+        if (mapScreen) {
+            mapScreen.style.transform = `scale(1.0)`;
+        }
+
+        goToPage('page-char');
+    }
+
+    function goToPage(pageId) {
+        playClickSFX();
+        startMysticBGM();
+        document.querySelectorAll('.page-screen').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById(pageId);
+        if (target) {
+            target.classList.add('active');
+        }
+
+        if (pageId === 'page-map') {
+            renderMapPath();
+            movePlayerTo(currentBase);
+            updateScoreBadge();
+        }
+    }
+
+    function updateScoreBadge() {
+        const correctCount = stageResults.filter(r => r === 'correct').length;
+        document.getElementById('score-tracker').innerText = `คะแนน: ${correctCount} / 10`;
+    }
+
+    function renderMapPath() {
+        const container = document.getElementById('nodes-container');
+        const svg = document.getElementById('map-svg');
+        container.innerHTML = '';
+        svg.innerHTML = '';
+
+        let pathD = "";
+        mapCoordinates.forEach((pt, idx) => {
+            const x = (pt.x / 100) * window.innerWidth;
+            const y = (pt.y / 100) * window.innerHeight;
+            if (idx === 0) pathD += `M ${x} ${y}`;
+            else pathD += ` L ${x} ${y}`;
+        });
+
+        const pathEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        pathEl.setAttribute("d", pathD);
+        pathEl.setAttribute("stroke", "#f1c40f");
+        pathEl.setAttribute("stroke-width", "5");
+        pathEl.setAttribute("stroke-dasharray", "8,8");
+        pathEl.setAttribute("fill", "none");
+        svg.appendChild(pathEl);
+
+        mapCoordinates.forEach((pt, idx) => {
+            const lvl = idx + 1;
+            const node = document.createElement('div');
+            const isUnlocked = lvl <= unlockedLevel;
+            const result = stageResults[idx];
+
+            let classNames = 'base-node';
+            let iconText = lvl;
+
+            if (result === 'correct') {
+                classNames += ' completed-correct';
+                iconText = '✅';
+            } else if (result === 'wrong') {
+                classNames += ' completed-wrong';
+                iconText = '❌';
+            } else if (isUnlocked) {
+                classNames += ' unlocked';
+            } else {
+                classNames += ' locked';
+                iconText = '🔒';
+            }
+
+            node.className = classNames;
+            node.style.left = pt.x + '%';
+            node.style.top = pt.y + '%';
+            node.innerText = iconText;
+
+            if (isUnlocked && result === null) {
+                node.onclick = () => onSelectNode(lvl, pt.x, pt.y);
+            }
+            container.appendChild(node);
+        });
+    }
+
+    function movePlayerTo(lvl) {
+        currentBase = lvl;
+        const pt = mapCoordinates[lvl - 1];
+        const avatar = document.getElementById('player-avatar');
+        avatar.style.left = pt.x + '%';
+        avatar.style.top = pt.y + '%';
+    }
+
+    function onSelectNode(lvl, xPct, yPct) {
+        playClickSFX();
+        movePlayerTo(lvl);
+
+        const mapScreen = document.getElementById('page-map');
+        mapScreen.style.transformOrigin = `${xPct}% ${yPct}%`;
+        mapScreen.style.transform = `scale(1.5)`;
+
+        setTimeout(() => {
+            startBattle(lvl);
+        }, 750);
+    }
+
+    function startBattle(lvl) {
+        const qData = currentQuestions[lvl - 1];
+        const coord = mapCoordinates[lvl - 1];
+        const bgLayer = document.getElementById('battle-bg');
+        const bossOverlay = document.getElementById('boss-cutscene-overlay');
+        const battlePanel = document.getElementById('battle-panel');
+
+        document.getElementById('battle-stage-title').innerText = `${coord.name}`;
+        document.getElementById('q-graphic').innerText = qData.graphic;
+        document.getElementById('q-title').innerText = qData.q;
+
+        const cBox = document.getElementById('q-choices');
+        cBox.innerHTML = '';
+        qData.choices.forEach(ch => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-choice';
+            btn.innerText = ch;
+            btn.onclick = () => checkAnswer(ch, qData.ans, lvl);
+            cBox.appendChild(btn);
+        });
+
+        if (lvl === 10) {
+            bgLayer.classList.add('battle-bg-boss');
+            bossOverlay.style.display = 'flex';
+            battlePanel.style.display = 'none';
+        } else {
+            bgLayer.classList.remove('battle-bg-boss');
+            bossOverlay.style.display = 'none';
+            battlePanel.style.display = 'flex';
+        }
+
+        goToPage('page-battle');
+    }
+
+    function triggerBossFireballStorm() {
+        playClickSFX();
+        const layer = document.getElementById('global-effects-layer');
+
+        for (let i = 0; i < 25; i++) {
+            setTimeout(() => {
+                playWrongSFX();
+                const fb = document.createElement('div');
+                fb.className = 'boss-fireball-storm';
+                fb.innerText = '🔥';
+                
+                fb.style.left = '50%';
+                fb.style.top = '35%';
+
+                const tx = (Math.random() - 0.5) * 1200 + 'px';
+                const ty = (Math.random() - 0.5) * 800 + 'px';
+                fb.style.setProperty('--tx', tx);
+                fb.style.setProperty('--ty', ty);
+
+                layer.appendChild(fb);
+
+                setTimeout(() => fb.remove(), 1800);
+            }, i * 65);
+        }
+
+        setTimeout(() => {
+            document.getElementById('boss-cutscene-overlay').style.display = 'none';
+            document.getElementById('battle-panel').style.display = 'flex';
+        }, 1600);
+    }
+
+    function checkAnswer(selected, correct, lvl) {
+        playClickSFX();
+        const isCorrect = (selected === correct);
+
+        stageResults[lvl - 1] = isCorrect ? 'correct' : 'wrong';
+
+        if (isCorrect) {
+            playApplauseSFX();
+            launchFireworks();
+        } else {
+            playWrongSFX();
+            triggerShakeUI();
+        }
+
+        if (lvl === unlockedLevel && unlockedLevel < 10) {
+            unlockedLevel++;
+        }
+
+        setTimeout(() => {
+            if (lvl === 10 || isAllCompleted()) {
+                showResultPage();
+            } else {
+                returnToMapWithZoomOut();
+            }
+        }, 850);
+    }
+
+    function isAllCompleted() {
+        return stageResults.filter(r => r !== null).length === 10;
+    }
+
+    function returnToMapWithZoomOut() {
+        const pt = mapCoordinates[currentBase - 1];
+        const mapScreen = document.getElementById('page-map');
+        
+        mapScreen.style.transformOrigin = `${pt.x}% ${pt.y}%`;
+        mapScreen.style.transform = `scale(1.5)`;
+
+        goToPage('page-map');
+
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                mapScreen.style.transform = `scale(1.0)`;
+            }, 50);
+        });
+    }
+
+    function returnToMap() {
+        returnToMapWithZoomOut();
+    }
+
+    function showResultPage() {
+        const correctScore = stageResults.filter(r => r === 'correct').length;
+        const scoreBox = document.getElementById('result-score');
+        const titleBox = document.getElementById('result-title');
+        const msgBox = document.getElementById('result-msg');
+
+        scoreBox.innerText = `คุณทำได้ ${correctScore} / 10 คะแนน`;
+
+        if (correctScore >= 7) {
+            titleBox.innerText = "🎉 ภารกิจสำเร็จ! 🎉";
+            scoreBox.style.color = "#2ecc71";
+            msgBox.innerText = "เก่งมาก! คุณสอบผ่านเกณฑ์ผู้พิทักษ์ดินแดนตัวเลขแล้ว!";
+            launchFireworks();
+            setTimeout(launchFireworks, 1000);
+        } else {
+            titleBox.innerText = "💔 ภารกิจยังไม่สำเร็จ 💔";
+            scoreBox.style.color = "#e74c3c";
+            msgBox.innerText = "คุณยังทำคะแนนได้ไม่ถึง 7 ด่าน ลองฝึกฝนแล้วท้าทายใหม่อีกครั้งนะ!";
+        }
+
+        goToPage('page-result');
+    }
+
+    function triggerShakeUI() {
+        const panel = document.getElementById('battle-panel');
+        panel.classList.add('shake-ui');
+        setTimeout(() => panel.classList.remove('shake-ui'), 450);
+    }
+
+    // --- AUDIO SYNTHESIZER ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let bgmStarted = false;
+
+    function playClickSFX() {
+        if (isMuted) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+    }
+
+    function playApplauseSFX() {
+        if (isMuted) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => {
+                if (isMuted) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(500 + Math.random() * 500, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+            }, i * 70);
+        }
+    }
+
+    function playWrongSFX() {
+        if (isMuted) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(140, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(70, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function startMysticBGM() {
+        if (bgmStarted) return;
+        bgmStarted = true;
+
+        const notes = [220, 261.63, 293.66, 329.63, 392, 440];
+        let step = 0;
+
+        setInterval(() => {
+            if (isMuted) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            const note = notes[step % notes.length];
+            osc.frequency.setValueAtTime(note, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.2);
+            step++;
+        }, 600);
+    }
+
+    // --- FIREWORKS CANVAS ---
+    const canvas = document.getElementById('fireworks-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function launchFireworks() {
+        particles = [];
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const colors = ['#f1c40f', '#e74c3c', '#3498db', '#2ecc71', '#e67e22', '#9b59b6'];
+
+        for (let i = 0; i < 90; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 9 + 2;
+            particles.push({
+                x: centerX,
+                y: centerY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                alpha: 1,
+                size: Math.random() * 5 + 3
+            });
+        }
+        animateFireworks();
+    }
+
+    function animateFireworks() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, index) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.alpha -= 0.02;
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (p.alpha <= 0) particles.splice(index, 1);
+        });
+
+        if (particles.length > 0) {
+            requestAnimationFrame(animateFireworks);
+        }
+    }
+
+    currentQuestions = generateRandomQuestions();
+    initAmbientEffects();
+</script>
+</body>
+</html>
