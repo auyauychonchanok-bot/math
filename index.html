@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ผจญภัยดินแดนตัวเลขคู่แม่มด - Avatar Cinematic Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: 'Kanit', sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #02050e;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 56.25vw;
+            max-height: 100vh;
+            max-width: 177.78vh;
+            overflow: hidden;
+            border: 2px solid rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.25), inset 0 0 30px rgba(0, 0, 0, 0.8);
+            background: #000;
+            border-radius: 12px;
+        }
+
+        /* LOGO STYLE */
+        .game-logo {
+            height: 50px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.6));
+        }
+
+        /* TOP NAVIGATION BAR */
+        .top-nav {
+            position: absolute;
+            top: 20px;
+            left: 25px;
+            right: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 40;
+        }
+
+        .top-nav-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        /* POPUP RESPOND WRONG (TROLL) */
+        #wrong-popup-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 3, 10, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 99;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .troll-icon {
+            font-size: 140px;
+            filter: drop-shadow(0 0 30px #ff0055);
+            animation: trollBounce 0.5s infinite alternate ease-in-out;
+        }
+
+        @keyframes trollBounce {
+            0% { transform: scale(1) translateY(0); }
+            100% { transform: scale(1.15) translateY(-15px); }
+        }
+
+        .troll-text {
+            font-size: 36px;
+            font-weight: 800;
+            color: #ff2a6d;
+            text-shadow: 0 0 20px rgba(255, 42, 109, 0.8);
+            margin-top: 10px;
+        }
+
+        /* SCREEN SHAKE ANIMATION */
+        .shake-screen {
+            animation: screenShake 0.4s ease-in-out !important;
+        }
+
+        @keyframes screenShake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            15% { transform: translate(-25px, 15px) rotate(-2deg); }
+            30% { transform: translate(25px, -15px) rotate(2deg); }
+            45% { transform: translate(-18px, -10px) rotate(-1deg); }
+            60% { transform: translate(18px, 10px) rotate(1deg); }
+            75% { transform: translate(-8px, 5px) rotate(0deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        /* --- GLOBAL AVATAR BIOLUMINESCENT EFFECTS --- */
+        #global-effects-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+
+        .floating-witch {
+            position: absolute;
+            top: 10%;
+            right: 6%;
+            font-size: 65px;
+            filter: drop-shadow(0 0 20px #00f0ff) drop-shadow(0 0 35px #7000ff);
+            animation: witchHover 4s infinite ease-in-out;
+        }
+
+        @keyframes witchHover {
+            0% { transform: translateY(0px) rotate(0deg) scale(1); }
+            50% { transform: translateY(-20px) rotate(-5deg) scale(1.05); }
+            100% { transform: translateY(0px) rotate(0deg) scale(1); }
+        }
+
+        .fireball {
+            position: absolute;
+            font-size: 32px;
+            pointer-events: none;
+            filter: drop-shadow(0 0 15px #00f0ff) drop-shadow(0 0 25px #ff00ea);
+            animation: fireballFly 2s linear forwards;
+        }
+
+        @keyframes fireballFly {
+            0% { opacity: 1; transform: scale(0.6) rotate(0deg); }
+            100% { opacity: 0; transform: translate(-700px, 400px) scale(1.6) rotate(-360deg); }
+        }
+
+        .boss-fireball-storm {
+            position: absolute;
+            font-size: 50px;
+            pointer-events: none;
+            filter: drop-shadow(0 0 25px #ff00ea) drop-shadow(0 0 40px #00f0ff);
+            animation: bossFireballStorm 1.8s ease-out forwards;
+        }
+
+        @keyframes bossFireballStorm {
+            0% { opacity: 0; transform: scale(0.2) translate(0, 0) rotate(0deg); }
+            30% { opacity: 1; }
+            100% { opacity: 0; transform: scale(2.8) translate(var(--tx), var(--ty)) rotate(720deg); }
+        }
+
+        .spore {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00f0ff;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #00f0ff, 0 0 25px #ff00ea;
+            opacity: 0.8;
+            animation: floatSpore 7s infinite ease-in-out;
+        }
+
+        @keyframes floatSpore {
+            0% { transform: translate(0, 0) scale(0.8); opacity: 0.2; }
+            50% { transform: translate(30px, -45px) scale(1.4); opacity: 0.9; }
+            100% { transform: translate(-25px, 25px) scale(0.8); opacity: 0.2; }
+        }
+
+        .page-screen {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            z-index: 10;
+        }
+
+        .page-screen.active { display: flex; }
+
+        /* PAGE BACKGROUNDS & ANIMATIONS */
+        #page-intro {
+            background-image: url('./g2.jpeg');
+            animation: castleZoom 14s infinite alternate ease-in-out;
+        }
+
+        @keyframes castleZoom {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.12); }
+        }
+
+        #page-char {
+            background-image: url('./g3.jpeg');
+            animation: charZoomOut 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes charZoomOut {
+            0% { transform: scale(1.2); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .overlay-dark {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, rgba(5, 12, 30, 0.65), rgba(2, 5, 15, 0.92));
+            backdrop-filter: blur(4px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 35px;
+            text-align: center;
+        }
+
+        /* ปรับแต่งส่วนเนื้อหาตรงกลางหน้าแรก */
+        .intro-center-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 800px;
+            margin: auto;
+        }
+
+        .game-title {
+            font-size: 46px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00f0ff, #7000ff, #ff00ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 25px rgba(0, 240, 255, 0.6));
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .btn-main {
+            background: linear-gradient(135deg, #00f0ff, #7000ff);
+            border: 2px solid #00f0ff;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 14px 45px;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.5);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .btn-main:hover {
+            transform: scale(1.08) translateY(-3px);
+            box-shadow: 0 0 40px rgba(255, 0, 234, 0.8), inset 0 0 15px rgba(255, 255, 255, 0.8);
+            border-color: #ff00ea;
+        }
+
+        /* MAP SCREEN - ปรับแต่งการซูมให้นุ่มนวลสมูทขึนอย่างมาก */
+        #page-map {
+            background-image: url('./g1.jpeg');
+            transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.8s ease;
+            transform-origin: center center;
+            will-change: transform, opacity;
+        }
+
+        .map-viewport-wrapper {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #map-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .base-node {
+            position: absolute;
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #0b1d3a, #030a16);
+            border: 3px solid #1e3a5f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 22px;
+            font-weight: bold;
+            color: #fff;
+            z-index: 5;
+            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+        }
+
+        .base-node.unlocked {
+            background: radial-gradient(circle, #00f0ff, #0055ff);
+            border-color: #fff;
+            box-shadow: 0 0 25px #00f0ff, inset 0 0 10px #fff;
+            cursor: pointer;
+            animation: pulseNode 2s infinite alternate;
+        }
+
+        @keyframes pulseNode {
+            0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 20px #00f0ff; }
+            100% { transform: translate(-50%, -50%) scale(1.12); box-shadow: 0 0 35px #ff00ea; }
+        }
+
+        .base-node.completed-correct {
+            background: radial-gradient(circle, #00ff88, #008844);
+            border-color: #fff;
+            box-shadow: 0 0 20px #00ff88;
+            cursor: not-allowed;
+        }
+
+        .base-node.completed-wrong {
+            background: radial-gradient(circle, #ff2a6d, #990033);
+            border-color: #fff;
+            box-shadow: 0 0 20px #ff2a6d;
+            cursor: not-allowed;
+        }
+
+        .base-node.locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+            filter: grayscale(80%);
+        }
+
+        #player-avatar {
+            position: absolute;
+            width: 55px;
+            height: 55px;
+            font-size: 45px;
+            z-index: 10;
+            transform: translate(-50%, -85%);
+            transition: left 0.9s cubic-bezier(0.25, 1, 0.5, 1), top 0.9s cubic-bezier(0.25, 1, 0.5, 1);
+            pointer-events: none;
+            filter: drop-shadow(0 0 15px #00f0ff);
+        }
+
+        /* BATTLE STAGE */
+        #page-battle {
+            background-color: #02050e;
+            position: relative;
+            overflow: hidden;
+            animation: battleFadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes battleFadeIn {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .battle-bg-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./g1.jpeg');
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            animation: bgSubtleZoom 12s infinite alternate ease-in-out;
+            z-index: 1;
+        }
+
+        .battle-bg-boss {
+            background-image: url('./g2.jpeg') !important;
+        }
+
+        .battle-ui {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 88%;
+            max-width: 900px;
+            background: rgba(4, 12, 30, 0.92);
+            border: 2px solid #00f0ff;
+            border-radius: 24px;
+            padding: 22px 30px;
+            z-index: 30;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 0 40px rgba(0, 240, 255, 0.3), inset 0 0 20px rgba(0, 240, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .question-graphic-box {
+            font-size: 36px;
+            margin-bottom: 12px;
+            background: rgba(0, 240, 255, 0.08);
+            padding: 10px 30px;
+            border-radius: 18px;
+            border: 1px dashed #00f0ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: inset 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        .question-box {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 18px;
+            color: #00f0ff;
+            text-align: center;
+            text-shadow: 0 0 12px rgba(0, 240, 255, 0.8);
+        }
+
+        .choices-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            width: 100%;
+        }
+
+        .btn-choice {
+            background: linear-gradient(135deg, rgba(112, 0, 255, 0.6), rgba(0, 240, 255, 0.4));
+            border: 2px solid #00f0ff;
+            color: #fff;
+            padding: 14px 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-choice:hover {
+            background: linear-gradient(135deg, #ff00ea, #7000ff);
+            border-color: #ff00ea;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 0 25px rgba(255, 0, 234, 0.7);
+        }
+
+        /* BOSS CUTSCENE */
+        #boss-cutscene-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(2, 5, 18, 0.88);
+            backdrop-filter: blur(8px);
+            z-index: 45;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .big-boss-witch {
+            font-size: 130px;
+            filter: drop-shadow(0 0 30px #ff00ea) drop-shadow(0 0 60px #00f0ff);
+            animation: bossFloat 2.5s infinite ease-in-out;
+            margin-bottom: 10px;
+        }
+
+        @keyframes bossFloat {
+            0% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-25px) scale(1.08); }
+            100% { transform: translateY(0px) scale(1); }
+        }
+
+        .boss-dialogue {
+            font-size: 38px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff00ea, #00f0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 25px rgba(255, 0, 234, 0.8);
+            margin-bottom: 25px;
+        }
+
+        /* RESULT SCREEN */
+        #page-result { background-image: url('./g2.jpeg'); }
+
+        .result-card {
+            background: rgba(4, 12, 30, 0.92);
+            border: 2px solid #00f0ff;
+            border-radius: 28px;
+            padding: 35px 55px;
+            text-align: center;
+            max-width: 680px;
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.4);
+            backdrop-filter: blur(10px);
+        }
+
+        #fireworks-canvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .info-badge {
+            background: rgba(4, 12, 30, 0.85);
+            border: 2px solid #00f0ff;
+            padding: 8px 24px;
+            border-radius: 30px;
+            font-size: 19px;
+            color: #00f0ff;
+            font-weight: bold;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-sound {
+            background: rgba(4, 12, 30, 0.85);
+            border: 2px solid #00f0ff;
+            color: #fff;
+            font-size: 22px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+            transition: all 0.2s ease;
+            margin-left: 10px;
+        }
+
+        .btn-sound:hover {
+            transform: scale(1.12);
+            border-color: #ff00ea;
+            box-shadow: 0 0 20px #ff00ea;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+
+    <!-- GLOBAL AVATAR ANIMATION LAYER -->
+    <div id="global-effects-layer">
+        <div class="floating-witch" id="scene-witch">🧙‍♀️</div>
+        <div id="spores-box"></div>
+    </div>
+
+    <!-- WRONG ANSWER TROLL POPUP -->
+    <div id="wrong-popup-overlay">
+        <div class="troll-icon">🧌</div>
+        <div class="troll-text">คำตอบไม่ถูกต้อง!</div>
+    </div>
+
+    <canvas id="fireworks-canvas"></canvas>
+
+    <!-- PAGE 1: INTRO (จัดเนื้อหาตรงกลางสมบูรณ์แบบ) -->
+    <div id="page-intro" class="page-screen active">
+        <div class="overlay-dark">
+            <div class="top-nav">
+                <div></div>
+                <div class="top-nav-center">
+                    <img src="t.png" alt="Logo" class="game-logo">
+                </div>
+                <div>
+                    <button class="btn-sound" id="sound-btn-intro" onclick="toggleSound()">🔊</button>
+                </div>
+            </div>
+
+            <!-- กล่องเนื้อหาหลักกลางจอ -->
+            <div class="intro-center-content">
+                <h1 class="game-title">✨ ผจญภัยดินแดนตัวเลขคู่แม่มด ✨</h1>
+                <p style="font-size: 20px; max-width: 720px; color: #a5c9eb; margin: 0 auto 35px auto; line-height: 1.6;">
+                    ตะลุยพงไพรเรืองแสงแห่งแฟนตาซี ไขปริศนา "จำนวนคู่ และ จำนวนคี่" ทั้ง 10 ฐาน เพื่อสยบแม่มดดำแห่งดวงดาว! (สุ่มโจทย์ใหม่ทุกรอบ)
+                </p>
+                <button class="btn-main" onclick="startNewGame()">⚔️ เริ่มต้นการผจญภัย</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 2: CHARACTERS -->
+    <div id="page-char" class="page-screen">
+        <div class="overlay-dark">
+            <div class="top-nav">
+                <div></div>
+                <div class="top-nav-center">
+                    <img src="t.png" alt="Logo" class="game-logo">
+                </div>
+                <div>
+                    <button class="btn-sound" id="sound-btn-char" onclick="toggleSound()">🔊</button>
+                </div>
+            </div>
+
+            <div class="intro-center-content">
+                <h2 class="game-title" style="font-size: 38px;">🧙‍♂️ ผู้พิทักษ์แห่งพฤกษาเรืองแสง 🐉</h2>
+                <div style="background: rgba(4, 12, 30, 0.85); border: 2px solid #00f0ff; border-radius: 20px; padding: 22px 38px; max-width: 700px; font-size: 20px; line-height: 1.6; color: #d0e8ff; box-shadow: 0 0 30px rgba(0,240,255,0.2); margin-bottom: 30px;">
+                    เรียนรู้คณิตศาสตร์ ชั้น ป.2 เรื่อง **จำนวนคู่** (ลงท้ายด้วย 0, 2, 4, 6, 8) และ **จำนวนคี่** (ลงท้ายด้วย 1, 3, 5, 7, 9) เพื่อพิชิตด่านมังกรและแม่มดเวทมนตร์!
+                </div>
+                <button class="btn-main" onclick="goToPage('page-map')">🗺️ ไปที่แผนที่เส้นทาง</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: MAP PATH SCREEN -->
+    <div id="page-map" class="page-screen">
+        <div class="map-viewport-wrapper">
+            <svg id="map-svg"></svg>
+            <div id="nodes-container"></div>
+            <div id="player-avatar">🧙‍♂️</div>
+        </div>
+        <div class="top-nav">
+            <div class="info-badge" id="score-tracker">คะแนน: 0 / 10</div>
+            <div class="top-nav-center">
+                <img src="t.png" alt="Logo" class="game-logo">
+            </div>
+            <div style="display: flex; align-items: center;">
+                <button class="btn-main" style="font-size: 16px; padding: 6px 22px;" onclick="goToPage('page-intro')">🏠 หน้าแรก</button>
+                <button class="btn-sound" id="sound-btn-map" onclick="toggleSound()">🔊</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: BATTLE STAGE -->
+    <div id="page-battle" class="page-screen">
+        <div class="battle-bg-layer" id="battle-bg"></div>
+        
+        <div class="top-nav">
+            <div class="info-badge" id="battle-stage-title">ฐานที่ 1</div>
+            <div class="top-nav-center">
+                <img src="t.png" alt="Logo" class="game-logo">
+            </div>
+            <div style="display: flex; align-items: center;">
+                <button class="btn-main" style="font-size: 16px; padding: 6px 22px;" onclick="returnToMap()">🗺️ ย้อนกลับแผนที่</button>
+                <button class="btn-sound" id="sound-btn-battle" onclick="toggleSound()">🔊</button>
+            </div>
+        </div>
+
+        <!-- BOSS STAGE 10 CUTSCENE -->
+        <div id="boss-cutscene-overlay">
+            <div class="big-boss-witch">🧙‍♀️🔮</div>
+            <div class="boss-dialogue">"เจ้าผู้พิทักษ์! จงรับมือเวทมนตร์จำนวนคู่-คี่ ของข้า!"</div>
+            <button class="btn-main" style="font-size: 26px; padding: 16px 50px;" onclick="triggerBossFireballStorm()">🔥 เผชิญหน้าบอสแม่มด!</button>
+        </div>
+
+        <div class="battle-ui" id="battle-panel">
+            <div class="question-graphic-box" id="q-graphic">🍎🍎</div>
+            <div class="question-box" id="q-title">โจทย์คณิตศาสตร์</div>
+            <div class="choices-grid" id="q-choices"></div>
+        </div>
+    </div>
+
+    <!-- PAGE 5: RESULT SUMMARY PAGE -->
+    <div id="page-result" class="page-screen">
+        <div class="overlay-dark">
+            <div class="top-nav">
+                <div></div>
+                <div class="top-nav-center">
+                    <img src="t.png" alt="Logo" class="game-logo">
+                </div>
+                <div>
+                    <button class="btn-sound" id="sound-btn-result" onclick="toggleSound()">🔊</button>
+                </div>
+            </div>
+            <div class="result-card">
+                <h2 class="game-title" id="result-title">🎉 สรุปผลการผจญภัย 🎉</h2>
+                <div id="result-score" style="font-size: 34px; font-weight: bold; color: #00ff88; margin: 15px 0;">
+                    คุณทำได้ 8 / 10 คะแนน
+                </div>
+                <p id="result-msg" style="font-size: 20px; color: #d0e8ff; margin-bottom: 25px; line-height: 1.6;">
+                    ยอดเยี่ยมมาก! คุณผ่านภารกิจผู้พิทักษ์ตัวเลขเรียบร้อยแล้ว
+                </p>
+                <button class="btn-main" id="btn-retry" onclick="startNewGame()">🔄 เริ่มเกมใหม่รอบใหม่ (สุ่มโจทย์ใหม่)</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const mapCoordinates = [
+        { x: 15, y: 78, name: "ฐาน 1: ปราสาทลอยฟ้า" },
+        { x: 30, y: 68, name: "ฐาน 2: ป่าอวาตาร์เรืองแสง" },
+        { x: 25, y: 45, name: "ฐาน 3: หมู่บ้านแม่มด" },
+        { x: 40, y: 32, name: "ฐาน 4: สะพานแสงจันทร์" },
+        { x: 55, y: 45, name: "ฐาน 5: ห้องทดลองเวทมนตร์" },
+        { x: 48, y: 72, name: "ฐาน 6: ถ้ำมังกรฟ้า" },
+        { x: 68, y: 78, name: "ฐาน 7: ภูเขาไฟละอองดาว" },
+        { x: 78, y: 55, name: "ฐาน 8: ดินแดนหิมะคริสตัล" },
+        { x: 72, y: 32, name: "ฐาน 9: หุบเขาพฤกษา" },
+        { x: 85, y: 22, name: "ฐาน 10: บัลลังก์บอสแม่มด" }
+    ];
+
+    const MASTER_QUESTION_BANK = [
+        { graphic: "🍎🍎", q: "มีแอปเปิ้ล 2 ผล (จับคู่ได้พอดี) เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "💎💎💎", q: "มีอัญมณี 3 ชิ้น (จับคู่แล้วเหลือเศษ 1) เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🔮 14 🔮", q: "เลข 14 ลงท้ายด้วย 4 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "📜 27 📜", q: "เลข 27 ลงท้ายด้วย 7 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🌟 40 🌟", q: "เลข 40 ลงท้ายด้วย 0 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "🍬🍬🍬🍬🍬", q: "มีลูกอม 5 เม็ด เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🎈🎈🎈🎈", q: "มีลูกโป่ง 4 ลูก เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "⚡️ 83 ⚡️", q: "เลข 83 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🍄 56 🍄", q: "เลข 56 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "🌸 91 🌸", q: "เลข 91 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🍐🍐🍐🍐🍐🍐", q: "มีฝรั่ง 6 ผล จับคู่ได้หมดพอดี เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "⭐ 19 ⭐", q: "เลข 19 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🎁 32 🎁", q: "เลข 32 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "🐣 75 🐣", q: "เลข 75 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🔥 68 🔥", q: "เลข 68 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "🐱🐱🐱🐱🐱🐱🐱", q: "มีแมว 7 ตัว เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🦄 100 🦄", q: "เลข 100 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "🌙 43 🌙", q: "เลข 43 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🧊 22 🧊", q: "เลข 22 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "🍓 9 🍓", q: "มีสตรอเบอร์รี่ 9 ลูก เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🔮 11 🔮", q: "เลข 11 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "📜 50 📜", q: "เลข 50 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "📦 64 📦", q: "เลข 64 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "🎒 37 🎒", q: "เลข 37 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🎨 88 🎨", q: "เลข 88 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "🥞 15 🥞", q: "เลข 15 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🍉 26 🍉", q: "เลข 26 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "🍊 49 🍊", q: "เลข 49 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🦋 72 🦋", q: "เลข 72 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "🌺 95 🌺", q: "เลข 95 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "🍒🍒🍒🍒🍒🍒🍒🍒", q: "มีเชอร์รี่ 8 ลูก เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "📜 [ 12, 15, 18 ] 📜", q: "จำนวนใดในชุดนี้เป็น 'จำนวนคี่'?", choices: ["15", "12", "18"], ans: "15" },
+        { graphic: "📜 [ 21, 24, 28 ] 📜", q: "จำนวนใดในชุดนี้เป็น 'จำนวนคี่'?", choices: ["21", "24", "28"], ans: "21" },
+        { graphic: "📜 [ 33, 40, 52 ] 📜", q: "จำนวนใดในชุดนี้เป็น 'จำนวนคู่'?", choices: ["40", "33", "52"], ans: "40" },
+        { graphic: "🔮 [ 61, 63, 66 ] 🔮", q: "จำนวนใดในชุดนี้เป็น 'จำนวนคู่'?", choices: ["66", "61", "63"], ans: "66" },
+        { graphic: "⚡️ 2 + 2 = 4 ⚡️", q: "ผลบวกของ 2 + 2 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "⚡️ 3 + 4 = 7 ⚡️", q: "ผลบวกของ 3 + 4 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "⚡️ 5 + 5 = 10 ⚡️", q: "ผลบวกของ 5 + 5 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" },
+        { graphic: "⚡️ 6 + 1 = 7 ⚡️", q: "ผลบวกของ 6 + 1 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคี่", "จำนวนคู่"], ans: "จำนวนคี่" },
+        { graphic: "⚡️ 10 + 8 = 18 ⚡️", q: "ผลบวกของ 10 + 8 เป็นจำนวนคู่หรือจำนวนคี่?", choices: ["จำนวนคู่", "จำนวนคี่"], ans: "จำนวนคู่" }
+    ];
+
+    const MASTER_BOSS_BANK = [
+        { 
+            graphic: "🧹🧹🧹  ✨  🧹🧹🧹", 
+            q: "บอสแม่มดเสกไม้กวาดมา 6 ด้าม! ถ้าจับคู่ไม้กวาดทีละ 2 ด้าม จะเหลือเศษหรือไม่ และเป็นจำนวนใด?", 
+            choices: ["จับคู่พอดี (จำนวนคู่ 6)", "เหลือเศษ 1 (จำนวนคี่ 6)", "จับคู่พอดี (จำนวนคี่ 6)", "เหลือเศษ 2 (จำนวนคู่ 6)"], 
+            ans: "จับคู่พอดี (จำนวนคู่ 6)" 
+        },
+        { 
+            graphic: "🍎🍎🍎🍎🍎  🔥  🍎🍎🍎🍎", 
+            q: "แม่มดคัดแอปเปิ้ลพิษไว้ 9 ผล ผลรวมนี้เป็นจำนวนคู่หรือจำนวนคี่ และเพราะเหตุใด?", 
+            choices: ["จำนวนคี่ เพราะลงท้ายด้วย 9", "จำนวนคู่ เพราะจับคู่ได้ลงตัว", "จำนวนคู่ เพราะลงท้ายด้วย 9", "จำนวนคี่ เพราะลงท้ายด้วย 0"], 
+            ans: "จำนวนคี่ เพราะลงท้ายด้วย 9" 
+        },
+        { 
+            graphic: "🐉 🌟 12  กับ  15 🌟 🐉", q: "ระหว่างเลข 12 และ 15 ข้อใดกล่าวถูกต้องที่สุด?", 
+            choices: ["12 เป็นจำนวนคู่, 15 เป็นจำนวนคี่", "12 เป็นจำนวนคี่, 15 เป็นจำนวนคู่", "ทั้งสองจำนวนเป็นจำนวนคู่", "ทั้งสองจำนวนเป็นจำนวนคี่"], 
+            ans: "12 เป็นจำนวนคู่, 15 เป็นจำนวนคี่" 
+        }
+    ];
+
+    let usedQuestionIndices = []; 
+    let usedBossIndices = [];     
+
+    let currentBase = 1; 
+    let unlockedLevel = 1;
+    let stageResults = Array(10).fill(null); 
+    let currentQuestions = [];
+    let isMuted = false;
+
+    function initAmbientEffects() {
+        const box = document.getElementById('spores-box');
+        box.innerHTML = '';
+        for (let i = 0; i < 25; i++) {
+            const sp = document.createElement('div');
+            sp.className = 'spore';
+            sp.style.left = Math.random() * 95 + '%';
+            sp.style.top = Math.random() * 95 + '%';
+            sp.style.animationDelay = (Math.random() * 5) + 's';
+            sp.style.animationDuration = (4 + Math.random() * 5) + 's';
+            box.appendChild(sp);
+        }
+
+        setInterval(() => {
+            castWitchFireball();
+        }, 3200);
+    }
+
+    function castWitchFireball() {
+        const witch = document.getElementById('scene-witch');
+        const layer = document.getElementById('global-effects-layer');
+        if (!witch || !layer) return;
+
+        const rect = witch.getBoundingClientRect();
+        const containerRect = document.getElementById('game-container').getBoundingClientRect();
+
+        const fireball = document.createElement('div');
+        fireball.className = 'fireball';
+        fireball.innerText = '⚡️';
+        fireball.style.top = (rect.top - containerRect.top + 20) + 'px';
+        fireball.style.left = (rect.left - containerRect.left + 10) + 'px';
+
+        layer.appendChild(fireball);
+
+        setTimeout(() => fireball.remove(), 2000);
+    }
+
+    function toggleSound() {
+        isMuted = !isMuted;
+        const soundBtns = document.querySelectorAll('.btn-sound');
+        soundBtns.forEach(btn => btn.innerText = isMuted ? '🔇' : '🔊');
+
+        if (isMuted && audioCtx) {
+            audioCtx.suspend();
+        } else if (!isMuted && audioCtx) {
+            audioCtx.resume();
+        }
+    }
+
+    function shuffleArray(array) {
+        let arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function generateRandomQuestions() {
+        let availableNormalIndices = MASTER_QUESTION_BANK.map((_, idx) => idx).filter(i => !usedQuestionIndices.includes(i));
+
+        if (availableNormalIndices.length < 9) {
+            usedQuestionIndices = [];
+            availableNormalIndices = MASTER_QUESTION_BANK.map((_, idx) => idx);
+        }
+
+        const pickedNormalIndices = shuffleArray(availableNormalIndices).slice(0, 9);
+        usedQuestionIndices.push(...pickedNormalIndices);
+
+        const selectedNormal = pickedNormalIndices.map(idx => {
+            const item = MASTER_QUESTION_BANK[idx];
+            return {
+                ...item,
+                choices: shuffleArray(item.choices)
+            };
+        });
+
+        let availableBossIndices = MASTER_BOSS_BANK.map((_, idx) => idx).filter(i => !usedBossIndices.includes(i));
+
+        if (availableBossIndices.length < 1) {
+            usedBossIndices = [];
+            availableBossIndices = MASTER_BOSS_BANK.map((_, idx) => idx);
+        }
+
+        const pickedBossIndex = shuffleArray(availableBossIndices)[0];
+        usedBossIndices.push(pickedBossIndex);
+
+        const bossItem = MASTER_BOSS_BANK[pickedBossIndex];
+        const selectedBoss = {
+            ...bossItem,
+            choices: shuffleArray(bossItem.choices)
+        };
+
+        return [...selectedNormal, selectedBoss];
+    }
+
+    function startNewGame() {
+        currentBase = 1;
+        unlockedLevel = 1;
+        stageResults = Array(10).fill(null);
+        currentQuestions = generateRandomQuestions();
+
+        const mapScreen = document.getElementById('page-map');
+        if (mapScreen) {
+            mapScreen.style.transform = `scale(1.0)`;
+            mapScreen.style.opacity = '1';
+        }
+
+        goToPage('page-char');
+    }
+
+    function goToPage(pageId) {
+        playClickSFX();
+        startMysticBGM();
+        document.querySelectorAll('.page-screen').forEach(el => el.classList.remove('active'));
+        const target = document.getElementById(pageId);
+        if (target) target.classList.add('active');
+
+        if (pageId === 'page-map') {
+            renderMapPath();
+            movePlayerTo(currentBase);
+            updateScoreBadge();
+        }
+    }
+
+    function updateScoreBadge() {
+        const correctCount = stageResults.filter(r => r === 'correct').length;
+        document.getElementById('score-tracker').innerText = `คะแนน: ${correctCount} / 10`;
+    }
+
+    function renderMapPath() {
+        const container = document.getElementById('nodes-container');
+        const svg = document.getElementById('map-svg');
+        container.innerHTML = '';
+        svg.innerHTML = '';
+
+        let pathD = "";
+        mapCoordinates.forEach((pt, idx) => {
+            const x = (pt.x / 100) * window.innerWidth;
+            const y = (pt.y / 100) * window.innerHeight;
+            if (idx === 0) pathD += `M ${x} ${y}`;
+            else pathD += ` L ${x} ${y}`;
+        });
+
+        const pathEl = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        pathEl.setAttribute("d", pathD);
+        pathEl.setAttribute("stroke", "#00f0ff");
+        pathEl.setAttribute("stroke-width", "5");
+        pathEl.setAttribute("stroke-dasharray", "8,8");
+        pathEl.setAttribute("fill", "none");
+        pathEl.setAttribute("filter", "drop-shadow(0 0 8px #00f0ff)");
+        svg.appendChild(pathEl);
+
+        mapCoordinates.forEach((pt, idx) => {
+            const lvl = idx + 1;
+            const node = document.createElement('div');
+            const isUnlocked = lvl <= unlockedLevel;
+            const result = stageResults[idx];
+
+            let classNames = 'base-node';
+            let iconText = lvl;
+
+            if (result === 'correct') {
+                classNames += ' completed-correct';
+                iconText = '✅';
+            } else if (result === 'wrong') {
+                classNames += ' completed-wrong';
+                iconText = '❌';
+            } else if (isUnlocked) {
+                classNames += ' unlocked';
+            } else {
+                classNames += ' locked';
+                iconText = '🔒';
+            }
+
+            node.className = classNames;
+            node.style.left = pt.x + '%';
+            node.style.top = pt.y + '%';
+            node.innerText = iconText;
+
+            if (isUnlocked && result === null) {
+                node.onclick = () => onSelectNode(lvl, pt.x, pt.y);
+            }
+            container.appendChild(node);
+        });
+    }
+
+    function movePlayerTo(lvl) {
+        currentBase = lvl;
+        const pt = mapCoordinates[lvl - 1];
+        const avatar = document.getElementById('player-avatar');
+        avatar.style.left = pt.x + '%';
+        avatar.style.top = pt.y + '%';
+    }
+
+    /* ปรับปรุงฟังก์ชันการซูมเข้าด่านให้ละมุน Smooth ยิ่งขึ้น */
+    function onSelectNode(lvl, xPct, yPct) {
+        playClickSFX();
+        movePlayerTo(lvl);
+
+        const mapScreen = document.getElementById('page-map');
+        mapScreen.style.transformOrigin = `${xPct}% ${yPct}%`;
+        mapScreen.style.transform = `scale(2.2)`;
+        mapScreen.style.opacity = `0.3`;
+
+        setTimeout(() => {
+            startBattle(lvl);
+        }, 1100);
+    }
+
+    function startBattle(lvl) {
+        const qData = currentQuestions[lvl - 1];
+        const coord = mapCoordinates[lvl - 1];
+        const bgLayer = document.getElementById('battle-bg');
+        const bossOverlay = document.getElementById('boss-cutscene-overlay');
+        const battlePanel = document.getElementById('battle-panel');
+
+        document.getElementById('battle-stage-title').innerText = `${coord.name}`;
+        document.getElementById('q-graphic').innerText = qData.graphic;
+        document.getElementById('q-title').innerText = qData.q;
+
+        const cBox = document.getElementById('q-choices');
+        cBox.innerHTML = '';
+        qData.choices.forEach(ch => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-choice';
+            btn.innerText = ch;
+            btn.onclick = () => checkAnswer(ch, qData.ans, lvl);
+            cBox.appendChild(btn);
+        });
+
+        if (lvl === 10) {
+            bgLayer.classList.add('battle-bg-boss');
+            bossOverlay.style.display = 'flex';
+            battlePanel.style.display = 'none';
+        } else {
+            bgLayer.classList.remove('battle-bg-boss');
+            bossOverlay.style.display = 'none';
+            battlePanel.style.display = 'flex';
+        }
+
+        goToPage('page-battle');
+    }
+
+    function triggerBossFireballStorm() {
+        playClickSFX();
+        const layer = document.getElementById('global-effects-layer');
+
+        for (let i = 0; i < 25; i++) {
+            setTimeout(() => {
+                playWrongSFX();
+                const fb = document.createElement('div');
+                fb.className = 'boss-fireball-storm';
+                fb.innerText = '⚡️';
+                
+                fb.style.left = '50%';
+                fb.style.top = '35%';
+
+                const tx = (Math.random() - 0.5) * 1200 + 'px';
+                const ty = (Math.random() - 0.5) * 800 + 'px';
+                fb.style.setProperty('--tx', tx);
+                fb.style.setProperty('--ty', ty);
+
+                layer.appendChild(fb);
+
+                setTimeout(() => fb.remove(), 1800);
+            }, i * 65);
+        }
+
+        setTimeout(() => {
+            document.getElementById('boss-cutscene-overlay').style.display = 'none';
+            document.getElementById('battle-panel').style.display = 'flex';
+        }, 1600);
+    }
+
+    function checkAnswer(selected, correct, lvl) {
+        playClickSFX();
+        const isCorrect = (selected === correct);
+
+        stageResults[lvl - 1] = isCorrect ? 'correct' : 'wrong';
+
+        if (isCorrect) {
+            playApplauseSFX();
+            launchFireworks();
+
+            if (lvl === unlockedLevel && unlockedLevel < 10) {
+                unlockedLevel++;
+            }
+
+            setTimeout(() => {
+                if (lvl === 10 || isAllCompleted()) {
+                    showResultPage();
+                } else {
+                    returnToMapWithZoomOut();
+                }
+            }, 850);
+        } else {
+            playWrongSFX();
+            showWrongPopup();
+
+            if (lvl === unlockedLevel && unlockedLevel < 10) {
+                unlockedLevel++;
+            }
+
+            setTimeout(() => {
+                if (lvl === 10 || isAllCompleted()) {
+                    showResultPage();
+                } else {
+                    returnToMapWithZoomOut();
+                }
+            }, 1200);
+        }
+    }
+
+    function showWrongPopup() {
+        const popup = document.getElementById('wrong-popup-overlay');
+        const container = document.getElementById('game-container');
+        
+        popup.style.display = 'flex';
+        container.classList.add('shake-screen');
+
+        setTimeout(() => {
+            popup.style.display = 'none';
+            container.classList.remove('shake-screen');
+        }, 1000);
+    }
+
+    function isAllCompleted() {
+        return stageResults.filter(r => r !== null).length === 10;
+    }
+
+    /* ปรับแต่งการย้อนกลับสู่แผนที่ให้คลี่คลายอย่างสมูท */
+    function returnToMapWithZoomOut() {
+        const pt = mapCoordinates[currentBase - 1];
+        const mapScreen = document.getElementById('page-map');
+        
+        mapScreen.style.transformOrigin = `${pt.x}% ${pt.y}%`;
+        mapScreen.style.transform = `scale(1.8)`;
+        mapScreen.style.opacity = `0.5`;
+
+        goToPage('page-map');
+
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                mapScreen.style.transform = `scale(1.0)`;
+                mapScreen.style.opacity = `1`;
+            }, 50);
+        });
+    }
+
+    function returnToMap() {
+        returnToMapWithZoomOut();
+    }
+
+    function showResultPage() {
+        const correctScore = stageResults.filter(r => r === 'correct').length;
+        const scoreBox = document.getElementById('result-score');
+        const titleBox = document.getElementById('result-title');
+        const msgBox = document.getElementById('result-msg');
+
+        scoreBox.innerText = `คุณทำได้ ${correctScore} / 10 คะแนน`;
+
+        if (correctScore >= 7) {
+            titleBox.innerText = "🎉 ภารกิจสำเร็จ! 🎉";
+            scoreBox.style.color = "#00ff88";
+            msgBox.innerText = "เก่งมาก! คุณสอบผ่านเกณฑ์ผู้พิทักษ์ตัวเลขคู่-คี่เรียบร้อยแล้ว!";
+            launchFireworks();
+            setTimeout(launchFireworks, 1000);
+        } else {
+            titleBox.innerText = "💔 ภารกิจยังไม่สำเร็จ 💔";
+            scoreBox.style.color = "#ff2a6d";
+            msgBox.innerText = "คุณยังทำคะแนนได้ไม่ถึง 7 ด่าน ลองฝึกฝนจำนวนคู่และคี่แล้วท้าทายใหม่อีกครั้งนะ!";
+        }
+
+        goToPage('page-result');
+    }
+
+    // --- SYNTHESIZED WEB AUDIO API ---
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let bgmStarted = false;
+
+    function playClickSFX() {
+        if (isMuted) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.08);
+    }
+
+    function playApplauseSFX() {
+        if (isMuted) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        for (let i = 0; i < 8; i++) {
+            setTimeout(() => {
+                if (isMuted) return;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(600 + Math.random() * 600, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.15);
+            }, i * 70);
+        }
+    }
+
+    function playWrongSFX() {
+        if (isMuted) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(60, audioCtx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function startMysticBGM() {
+        if (bgmStarted) return;
+        bgmStarted = true;
+
+        const notes = [261.63, 329.63, 392, 523.25, 659.25, 783.99];
+        let step = 0;
+
+        setInterval(() => {
+            if (isMuted) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            const note = notes[step % notes.length];
+            osc.frequency.setValueAtTime(note, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.4);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.4);
+            step++;
+        }, 550);
+    }
+
+    // --- FIREWORKS CANVAS ---
+    const canvas = document.getElementById('fireworks-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function resizeCanvas() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function launchFireworks() {
+        particles = [];
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const colors = ['#00f0ff', '#ff00ea', '#7000ff', '#00ff88', '#ffff00'];
+
+        for (let i = 0; i < 100; i++) {
+            const angle = Math.random() * Math.PI * 2;
+            const speed = Math.random() * 10 + 2;
+            particles.push({
+                x: centerX,
+                y: centerY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                alpha: 1,
+                size: Math.random() * 5 + 3
+            });
+        }
+        animateFireworks();
+    }
+
+    function animateFireworks() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p, index) => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.alpha -= 0.02;
+            ctx.globalAlpha = Math.max(0, p.alpha);
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (p.alpha <= 0) particles.splice(index, 1);
+        });
+
+        if (particles.length > 0) {
+            requestAnimationFrame(animateFireworks);
+        }
+    }
+
+    currentQuestions = generateRandomQuestions();
+    initAmbientEffects();
+</script>
+</body>
+</html>
